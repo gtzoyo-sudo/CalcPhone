@@ -26,13 +26,22 @@ jobs:
         run: |
           sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
 
-      - name: Set up Gradle
+      # Gradle telepítés, DE cache nélkül
+      - name: Set up Gradle (no cache)
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.2
+          cache-disabled: true
+
+      - name: Generate Gradle Wrapper (if missing)
+        run: |
+          if [ ! -f "./gradlew" ]; then
+            gradle wrapper --gradle-version 8.2
+            chmod +x ./gradlew
+          fi
 
       - name: Build Debug APK
-        run: gradle assembleDebug
+        run: ./gradlew :app:assembleDebug --no-daemon
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
